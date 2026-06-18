@@ -1,0 +1,143 @@
+% =============================================================================
+%  RECEIPT / إيصال   <<doc.id>>
+%  Bilingual (English + Arabic) — compile with XeLaTeX.
+% =============================================================================
+\documentclass[a4paper, 11pt]{article}
+\usepackage[a4paper, margin=2cm]{geometry}
+\usepackage{booktabs, array}
+\usepackage{xcolor, colortbl}
+\usepackage{fancyhdr, lastpage}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{etoolbox}
+\usepackage[hidelinks, colorlinks=false]{hyperref}
+\hypersetup{pdfborder={0 0 0}}
+
+((* include "_bilingual_preamble.tex.j2" *))
+
+\definecolor{accent}{RGB}{<<brand.r>>,<<brand.g>>,<<brand.b>>}
+\definecolor{softgray}{RGB}{245,245,245}
+
+\newcommand{\optline}[1]{#1\\}
+\newcommand{\sectionrule}{\noindent\textcolor{accent}{\rule{\linewidth}{0.7pt}}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[L]{\small\color{gray}<<doc.id>>}
+\fancyfoot[R]{\small\color{gray}Page / \textarabic{صفحة} \thepage{} of / \textarabic{من} \pageref{LastPage}}
+
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+% ---- HEADER ----
+% Business 0.45, Title 0.53 — fits "RECEIPT / إيصال" at 28pt comfortably.
+\noindent
+\begin{minipage}[t]{0.45\textwidth}
+((* if business.logo_path *))
+\includegraphics[height=1.2cm]{<<business.logo_path>>}\\[6pt]
+((* endif *))
+{\Large\bfseries\color{accent}<<business.name>>}\\[2pt]
+((* if business.tagline *))
+\textit{\small\color{gray}<<business.tagline>>}\\[4pt]
+((* endif *))
+((* if business.phone   *))\optline{\small <<business.phone>>}((* endif *))
+((* if business.email   *))\optline{\small\href{mailto:<<business.email>>}{<<business.email>>}}((* endif *))
+((* if business.website *))\optline{\small <<business.website>>}((* endif *))
+((* if business.address *))\optline{\small <<business.address>>}((* endif *))
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.53\textwidth}
+\raggedleft
+{\fontsize{28}{32}\selectfont\bfseries\color{accent}RECEIPT\,/\,\textarabic{إيصال}}
+\end{minipage}
+
+\vspace{10pt}\sectionrule\vspace{8pt}
+
+% ---- META ----
+\noindent
+\begin{minipage}[t]{0.55\textwidth}
+\textbf{Receipt ID\,/\,\textarabic{رقم الإيصال}:}~\texttt{<<doc.id>>}\\
+((* if doc.related_invoice *))\textbf{Ref. Invoice\,/\,\textarabic{مرجع الفاتورة}:}~\texttt{<<doc.related_invoice>>}((* endif *))
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.42\textwidth}
+\raggedleft
+\textbf{Date\,/\,\textarabic{التاريخ}:}~<<doc.date>>
+\end{minipage}
+
+\vspace{10pt}\sectionrule\vspace{8pt}
+
+% ---- RECEIVED FROM ----
+{\bfseries\color{accent}RECEIVED FROM\,/\,\textarabic{مستلم من}}\\[5pt]
+\textbf{Name\,/\,\textarabic{الاسم}:}~<<client.name>>\\
+((* if client.phone *))\textbf{Phone\,/\,\textarabic{الهاتف}:}~<<client.phone>>\\((* endif *))
+((* if client.email *))\textbf{Email\,/\,\textarabic{البريد الإلكتروني}:}~\href{mailto:<<client.email>>}{<<client.email>>}\\((* endif *))
+((* if client.site  *))\textbf{Site\,/\,\textarabic{الموقع}:}~<<client.site>>\\((* endif *))
+
+\vspace{8pt}\sectionrule\vspace{14pt}
+
+% ---- BIG AMOUNT BLOCK ----
+\noindent\colorbox{softgray}{\parbox{\dimexpr\linewidth-2\fboxsep\relax}{%
+  \vspace{8pt}
+  \begin{center}
+  {\small\color{gray}AMOUNT RECEIVED\,/\,\textarabic{المبلغ المستلم}}\\[6pt]
+  {\fontsize{36}{42}\selectfont\bfseries\color{accent}\$<<doc.amount_received>>}\\[10pt]
+  {\small\itshape <<doc.amount_words>>}
+  \end{center}
+  \vspace{4pt}
+}}
+
+\vspace{16pt}
+
+% ---- PAYMENT DETAILS ----
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{@{}>{\bfseries}l>{\raggedright\arraybackslash}p{0.65\linewidth}@{}}
+Payment method\,/\,\textarabic{طريقة الدفع}: & <<doc.payment_method>> \\
+((* if doc.payment_reference *))
+Reference\,/\,\textarabic{المرجع}: & <<doc.payment_reference>> \\
+((* endif *))
+For\,/\,\textarabic{مقابل}: & <<doc.for_description>> \\
+((* if doc.balance_remaining *))
+Balance remaining\,/\,\textarabic{الرصيد المتبقي}: & \$<<doc.balance_remaining>> \\
+((* endif *))
+\end{tabular}
+
+((* if doc.exchange_rate *))
+\vspace{8pt}
+
+{\small\itshape\color{gray}<<doc.exchange_rate>>}
+((* endif *))
+
+\vspace{20pt}\sectionrule\vspace{10pt}
+
+% ---- NOTES ----
+((* if doc.notes *))
+{\bfseries\color{accent}NOTES\,/\,\textarabic{ملاحظات}}\\[5pt]
+\begin{itemize}[leftmargin=1.5em, noitemsep, topsep=0pt]
+((* for n in doc.notes *))\item <<n>>
+((* endfor *))
+\end{itemize}
+\vspace{8pt}
+((* endif *))
+
+% ---- SIGNATURE ----
+\vfill
+\noindent
+\begin{minipage}[t]{0.5\linewidth}
+\textbf{Received by\,/\,\textarabic{استلم بواسطة}:}\\[20pt]
+((* if doc.show_signature and business.signature_path *))
+\includegraphics[height=1.4cm]{<<business.signature_path>>}\\
+((* endif *))
+\rule{0.8\linewidth}{0.4pt}\\
+\small <<business.name>>
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.4\linewidth}\raggedleft
+\textbf{Stamp / Acknowledgment\,/\,\textarabic{الختم والإقرار}:}\\[40pt]
+\rule{0.9\linewidth}{0.4pt}
+\end{minipage}
+
+\end{document}

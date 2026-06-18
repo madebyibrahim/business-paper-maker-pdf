@@ -1,0 +1,26 @@
+% Reusable totals block for BILINGUAL INVOICE.
+\vspace{6pt}
+\begin{flushright}
+\begin{minipage}{9.5cm}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular*}{\linewidth}{@{}l@{\extracolsep{\fill}}r@{}}
+\textbf{Subtotal\,/\,\textarabic{المجموع الفرعي}} & \$<<totals.subtotal>> \\
+((* if totals.discount_pct *))
+\textbf{Discount\,/\,\textarabic{الخصم} (<<totals.discount_pct>>\%)} & -\$<<totals.discount_amount>> \\
+((* endif *))
+((* if totals.tax_pct *))
+\textbf{Tax\,/\,\textarabic{الضريبة} (<<totals.tax_pct>>\%)} & \$<<totals.tax_amount>> \\
+((* endif *))
+\textbf{Total\,/\,\textarabic{المجموع}} & \$<<totals.grand_total>> \\
+((* if totals.deposit_paid *))
+\textbf{Deposit Paid\,/\,\textarabic{الدفعة المقدمة}} & -\$<<totals.deposit_paid>> \\
+((* endif *))
+\arrayrulecolor{accent}\midrule
+\multicolumn{2}{@{}r@{}}{\colorbox{accent}{\parbox{\dimexpr\linewidth-2\fboxsep\relax}{%
+  \color{white}\begin{tabular*}{\linewidth}{@{}l@{\extracolsep{\fill}}r@{}}%
+    \textbf{\large AMOUNT DUE\,/\,\textarabic{المبلغ المستحق}} & \textbf{\large \$<<totals.amount_due>>}%
+  \end{tabular*}%
+}}}\\
+\end{tabular*}
+\end{minipage}
+\end{flushright}

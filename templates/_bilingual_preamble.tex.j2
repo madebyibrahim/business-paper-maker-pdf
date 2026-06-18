@@ -1,0 +1,17 @@
+% ----------------------------------------------------------------------------
+%  Shared XeLaTeX bilingual preamble (English + Arabic)
+%  Included by the *_bilingual.tex.j2 templates.
+% ----------------------------------------------------------------------------
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{english}
+\setotherlanguage{arabic}
+
+% Latin main fonts (always available in TeX Live)
+\setmainfont{Latin Modern Roman}
+\setsansfont{Latin Modern Sans}
+\setmonofont{Latin Modern Mono}
+
+% Arabic font (Amiri ships with fonts-hosny-amiri / texlive-lang-arabic).
+% Scale slightly so Arabic glyphs visually match Latin x-height.
+\newfontfamily\arabicfont[Script=Arabic, Scale=1.05]{Amiri}

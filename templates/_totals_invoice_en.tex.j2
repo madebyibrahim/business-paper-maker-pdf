@@ -1,0 +1,26 @@
+% Reusable totals block for English-only INVOICE.
+\vspace{6pt}
+\begin{flushright}
+\begin{minipage}{8cm}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular*}{\linewidth}{@{}l@{\extracolsep{\fill}}r@{}}
+\textbf{Subtotal} & \$<<totals.subtotal>> \\
+((* if totals.discount_pct *))
+\textbf{Discount (<<totals.discount_pct>>\%)} & -\$<<totals.discount_amount>> \\
+((* endif *))
+((* if totals.tax_pct *))
+\textbf{Tax (<<totals.tax_pct>>\%)} & \$<<totals.tax_amount>> \\
+((* endif *))
+\textbf{Total} & \$<<totals.grand_total>> \\
+((* if totals.deposit_paid *))
+\textbf{Deposit Paid} & -\$<<totals.deposit_paid>> \\
+((* endif *))
+\arrayrulecolor{accent}\midrule
+\multicolumn{2}{@{}r@{}}{\colorbox{accent}{\parbox{\dimexpr\linewidth-2\fboxsep\relax}{%
+  \color{white}\begin{tabular*}{\linewidth}{@{}l@{\extracolsep{\fill}}r@{}}%
+    \textbf{\large AMOUNT DUE} & \textbf{\large \$<<totals.amount_due>>}%
+  \end{tabular*}%
+}}}\\
+\end{tabular*}
+\end{minipage}
+\end{flushright}
