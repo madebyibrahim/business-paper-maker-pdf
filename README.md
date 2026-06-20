@@ -33,12 +33,65 @@ ledger.py   ─▶  ledger_invoices.csv, ledger_receipts.csv   (export all jobs)
 
 You describe each document as a tiny Python file (the "job") listing the client,
 the line items, and a few totals flags. The generator compiles it to LaTeX and
-then to a PDF. There is no database, no server, no GUI — just plain files you can
-version-control and back up with `git`.
+then to a PDF. There is no database, no server — just plain files you can
+version-control and back up with `git`. You can drive the whole thing from the
+**desktop GUI** (recommended) or from the **command line**.
 
 ---
 
-## Quick start
+## Desktop GUI (recommended)
+
+A PySide6 desktop app lets you do everything without touching a terminal or a
+text editor: browse documents, create new ones, edit fields with live totals,
+generate PDFs, and preview them in-app.
+
+### Install
+
+```bash
+pip install -r requirements.txt      # adds PySide6 alongside Jinja2/num2words
+```
+
+### Launch
+
+```bash
+python app.py
+```
+
+A window opens. The left sidebar is navigation; the middle column lists every
+document under `jobs/`; the right pane is the editor with a live PDF preview.
+
+### What you can do in the GUI
+
+- **Documents** — searchable list of all quotations/invoices/receipts. Click one
+  to open it in the editor. If a PDF already exists it shows in the preview pane.
+- **+ New** — pick the type and year; the next sequential ID is assigned
+  automatically and a scaffold job file is created, then opened for editing.
+- **Editor** — every field for the document type (dates, client, items table,
+  discount/tax, payment methods, notes, watermark, bilingual toggle). The items
+  table supports line items `(description, qty, unit price)` and section
+  subheaders, with add / remove / reorder buttons. **Totals update live** as you
+  type, using the same math the PDF renderer uses.
+- **Save / Generate PDF** — Save writes the form back to the job `.py` (so it
+  stays git-friendly and the CLI can still read it); Generate runs the LaTeX
+  pipeline and refreshes the in-app preview. **Open PDF** and **Reveal in
+  Explorer** are one click away.
+- **Settings** — edit your business identity, brand color (color picker), logo
+  and signature paths, and your reusable client records — written back to
+  `config/business.py` and `config/clients.py`.
+- **Ledger** — regenerate the CSV ledgers from `jobs/` and view all invoices and
+  receipts in searchable tables with totals, plus a CSV export button.
+- **LaTeX status** — the sidebar shows whether `pdflatex` / `xelatex` are
+  installed. If you enable Bilingual on a document but `xelatex` is missing, you
+  get a clear warning before generating.
+
+> The GUI never rewrites the engine: `generate.py`, `new.py`, `ledger.py`, the
+> templates, and `config/` are reused exactly as the CLI uses them. Job `.py`
+> files remain the source of truth, so CLI and GUI coexist on the same data.
+
+---
+
+## Quick start (command line)
+
 
 ### 1. Install Python dependencies
 
