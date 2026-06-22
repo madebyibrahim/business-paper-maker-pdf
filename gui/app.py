@@ -31,6 +31,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Paper Maker")
         self.resize(1280, 820)
+        self.setMinimumSize(960, 600)
 
         self._latex = latex_status.detect()
 
@@ -105,13 +106,20 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------- actions
 
     def _load_job(self, path: str) -> None:
+        # Re-selecting the already-loaded doc is a no-op — and most importantly
+        # it must NOT trigger an unsaved-changes prompt, because that's exactly
+        # what happens after the user cancelled a switch and we re-selected the
+        # current row programmatically.
+        if self.editor.current_path() == path:
+            return
         # If the current doc has unsaved edits, let the user save / discard /
         # cancel before we throw it away by loading a different one.
         if not self.editor.confirm_save_or_discard():
             # User cancelled — re-select the currently-loaded doc in the list so
             # the selection matches what's actually shown.
-            if self.editor.current_doc_id():
-                self.documents.select_path(self.editor._model.path)
+            current = self.editor.current_path()
+            if current:
+                self.documents.select_path(current)
             return
         try:
             model = adapter.load(path)

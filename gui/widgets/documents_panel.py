@@ -22,6 +22,7 @@ class DocumentsPanel(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._all: list[tuple[str, str, str]] = []  # (path, doc_id, subtitle)
+        self.setMinimumWidth(220)
 
         self.search = QLineEdit()
         self.search.setPlaceholderText("Search by id or client…")

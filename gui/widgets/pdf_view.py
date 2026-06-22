@@ -61,11 +61,14 @@ class PdfPreview(QWidget):
         if HAVE_QTPDF:
             if self._current_path:
                 # QPdfDocument.load accepts a filename string (not a QUrl) in PySide6.
+                # ``close()`` first to drop any handle the previous PDF held —
+                # on Windows that lets the engine overwrite the file on regen.
+                self._document.close()
                 self._document.load(self._current_path)
             else:
-                # Reload an empty document to blank the view.
-                self._document = QPdfDocument(self)
-                self._view.setDocument(self._document)
+                # Just close the document; the view stays bound to it and
+                # blanks. Avoids leaking a new QPdfDocument on every clear().
+                self._document.close()
 
         self._fallback_button.setEnabled(self._current_path is not None)
 

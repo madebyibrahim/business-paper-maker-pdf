@@ -25,6 +25,20 @@ from gui import storage
 BUSINESS_PATH = storage.ROOT / "config" / "business.py"
 CLIENTS_PATH = storage.ROOT / "config" / "clients.py"
 
+
+def _atomic_write(path: Path, text: str) -> None:
+    """Write ``text`` to ``path`` so the file is never observed half-written.
+
+    Writes a sibling temp file then ``os.replace`` (atomic on POSIX and on
+    Windows for files on the same volume). On any failure the original file
+    is left intact.
+    """
+    import os
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    os.replace(tmp, path)
+
+
 # (attr, label) pairs for the business file, in file order.
 BUSINESS_FIELDS = [
     ("MY_NAME",    "Business name"),
@@ -125,7 +139,15 @@ class SettingsDialog(QDialog):
             val = getattr(business, attr, "")
             self._business_inputs[attr].setText(str(val))
         rgb = getattr(business, "BRAND_COLOR_RGB", (30, 60, 114))
-        self._brand_rgb = tuple(int(x) for x in rgb)
+        try:
+            r, g, b = (int(x) for x in rgb)
+        except (TypeError, ValueError):
+            r, g, b = 30, 60, 114
+        # Clamp to the valid 0..255 range so a hand-edited business.py with a
+        # nonsensical tuple still gives the color button a paintable value.
+        self._brand_rgb = (max(0, min(255, r)),
+                           max(0, min(255, g)),
+                           max(0, min(255, b)))
         self._update_color_button()
 
         clients = self._import_module("config.clients")
@@ -217,7 +239,7 @@ class SettingsDialog(QDialog):
             "# ---- Brand color (single accent used across all documents) ----\n"
             f"BRAND_COLOR_RGB = ({r}, {g}, {b})\n"
         )
-        BUSINESS_PATH.write_text(text, encoding="utf-8")
+        _atomic_write(BUSINESS_PATH, text)
 
     def _write_clients(self) -> None:
         header = (
@@ -243,4 +265,4 @@ class SettingsDialog(QDialog):
                 f'    "site":  {site!r},\n'
                 "}\n"
             )
-        CLIENTS_PATH.write_text(header + "\n".join(bodies) + "\n", encoding="utf-8")
+        _atomic_write(CLIENTS_PATH, header + "\n".join(bodies) + "\n")

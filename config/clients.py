@@ -6,13 +6,13 @@ ACME_CORP = {
     "name":  'Acme Corporation',
     "phone": '+961 1 234 567',
     "email": 'billing@acme.example',
-    "site":  "",
+    "site":  '',
 }
 
 SAMPLE_CLIENT = {
     "name":  'Sample Client',
     "phone": '+961 71 234 567',
     "email": 'client@example.com',
-    "site":  "",
+    "site":  '',
 }
 

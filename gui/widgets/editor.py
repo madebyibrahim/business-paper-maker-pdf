@@ -51,6 +51,16 @@ class Editor(QWidget):
 
         self._totals_label = QLabel("Open a document to begin.")
         self._totals_label.setStyleSheet("padding:8px; background:#f4f6fa; border-radius:4px;")
+        # An always-present placeholder so the empty-state form area doesn't
+        # look like a layout bug; load_model removes it via _build_form's row
+        # cleanup before populating the real fields.
+        self._empty_hint = QLabel(
+            "No document selected.\n\nPick one from the list, or click + New."
+        )
+        self._empty_hint.setAlignment(Qt.AlignCenter)
+        self._empty_hint.setStyleSheet("color:#888; padding:32px;")
+        # Show the placeholder until the first load_model() builds a real form.
+        self._form_layout.addRow(self._empty_hint)
 
         # One persistent items editor for the life of the Editor. Parented to
         # self so it survives form rebuilds (see _build_form).
@@ -61,7 +71,12 @@ class Editor(QWidget):
         self.btn_generate = QPushButton("Generate PDF")
         self.btn_generate.setStyleSheet("font-weight:bold;")
         self.btn_open = QPushButton("Open PDF")
-        self.btn_reveal = QPushButton("Reveal in Explorer")
+        self.btn_reveal = QPushButton("Show in folder")
+        # Tooltips carry the longer description so the buttons can be narrow.
+        self.btn_save.setToolTip("Save edits to the job .py file")
+        self.btn_generate.setToolTip("Run LaTeX and refresh the preview")
+        self.btn_open.setToolTip("Open the generated PDF in your system viewer")
+        self.btn_reveal.setToolTip("Reveal the PDF in the file manager")
         for b in (self.btn_save, self.btn_generate, self.btn_open, self.btn_reveal):
             b.setEnabled(False)
         self.btn_save.clicked.connect(self.save)
@@ -105,6 +120,9 @@ class Editor(QWidget):
         outer.setContentsMargins(8, 8, 8, 8)
         outer.addWidget(splitter)
 
+        # Keep the editor pane usable when the main splitter is dragged narrow.
+        self.setMinimumWidth(520)
+
         self.set_enabled(False)
 
     # ------------------------------------------------------------ public API
@@ -134,6 +152,9 @@ class Editor(QWidget):
     def current_doc_id(self) -> str:
         return self._model.doc_id if self._model else ""
 
+    def current_path(self) -> str:
+        return self._model.path if self._model else ""
+
     def confirm_save_or_discard(self) -> bool:
         """If the current doc is dirty, ask the user what to do.
 
@@ -157,6 +178,8 @@ class Editor(QWidget):
 
     def set_enabled(self, on: bool) -> None:
         for w in self._widgets.values():
+            w.setEnabled(on)
+        for w in getattr(self, "_client_widgets", {}).values():
             w.setEnabled(on)
         self.items_editor.setEnabled(on)
         for b in (self.btn_save, self.btn_generate):

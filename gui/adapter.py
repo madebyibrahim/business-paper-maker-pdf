@@ -174,6 +174,10 @@ def _assignment(key: str, value: Any) -> str:
         return _assignment_items(value)
     if key in ("PAYMENT_METHODS", "NOTES"):
         return _assignment_list(key, value)
+    # Whole-number percentages read more naturally as ints (5 not 5.0), to
+    # match templates/scaffolds/*.py. Engine treats both the same.
+    if key in ("DISCOUNT_PCT", "TAX_PCT") and isinstance(value, float) and value.is_integer():
+        return f"{key} = {int(value)}"
     return f"{key} = {_py_literal(value)}"
 
 

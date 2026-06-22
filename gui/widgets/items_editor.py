@@ -113,7 +113,11 @@ class ItemsEditor(QWidget):
         combo = QComboBox()
         combo.addItems([KIND_ITEM, KIND_HEADER])
         combo.setCurrentText(kind)
-        combo.currentTextChanged.connect(lambda *_: self._on_kind_changed(r))
+        # Look the row up at the moment the user toggles, not at creation time.
+        # If we captured `r` in the lambda, an insertion in the middle of the
+        # table (which shifts later rows down) would leave every existing
+        # combo wired to the *wrong* row index.
+        combo.currentTextChanged.connect(self._on_combo_changed)
         self.table.setCellWidget(r, COL_KIND, combo)
 
         self.table.setItem(r, COL_DESC, QTableWidgetItem(desc))
@@ -176,6 +180,18 @@ class ItemsEditor(QWidget):
         kind, desc, qty, unit = vals
         self._append_row(kind, desc=desc,
                          qty=self._parse_num(qty), unit=self._parse_num(unit), at=r)
+
+    def _on_combo_changed(self, *_args) -> None:
+        # The QComboBox that fired is self.sender(); locate which row it
+        # currently sits in. Doing it on the fly is robust against rows being
+        # inserted/removed/moved after the combo was created.
+        if self._guard:
+            return
+        combo = self.sender()
+        for r in range(self.table.rowCount()):
+            if self.table.cellWidget(r, COL_KIND) is combo:
+                self._on_kind_changed(r)
+                return
 
     def _on_kind_changed(self, r: int) -> None:
         if self._guard:
